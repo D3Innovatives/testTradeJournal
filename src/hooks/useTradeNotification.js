@@ -27,13 +27,18 @@ export function useTradeNotification() {
   // Update service worker with trade state
   useEffect(() => {
     const updateServiceWorker = async () => {
-      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+      if ('serviceWorker' in navigator) {
         try {
-          await navigator.serviceWorker.ready
-          navigator.serviceWorker.controller.postMessage({
+          const registration = await navigator.serviceWorker.ready
+          registration.active?.postMessage({
             type: 'TRADE_STATE_UPDATE',
             payload: activeTrade
           })
+
+          // Request background sync if available
+          if ('sync' in registration) {
+            await registration.sync.register('check-trade')
+          }
         } catch (error) {
           console.error('Error updating service worker:', error)
         }
