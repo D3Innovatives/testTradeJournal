@@ -1,11 +1,10 @@
 import { Snackbar, Alert } from '@mui/material'
 import { useEffect, useState } from 'react'
 import useSound from 'use-sound'
-import notificationSound from '../assets/notification.mp3' // You'll need to add this sound file
 
 export default function IOSNotification({ isActive, duration }) {
   const [open, setOpen] = useState(false)
-  const [play] = useSound(notificationSound)
+  const [play] = useSound('/sounds/notification.mp3')
 
   useEffect(() => {
     let interval
@@ -38,7 +37,14 @@ export default function IOSNotification({ isActive, duration }) {
       autoHideDuration={6000}
       onClose={() => setOpen(false)}
       anchorOrigin={{ vertical: 'top', horizontal: 'center' }}
-      sx={{ top: { xs: 16, sm: 24 } }}
+      className="ios-notification"
+      sx={{ 
+        top: { xs: 16, sm: 24 },
+        '& .MuiAlert-root': {
+          width: '100%',
+          maxWidth: '400px'
+        }
+      }}
     >
       <Alert
         severity="warning"
