@@ -42,6 +42,11 @@ export default defineConfig({
           touchIcon: '/icons/apple-touch-icon.png',
         },
       },
+      // Configure for custom service worker
+      srcDir: 'src',
+      filename: 'custom-sw.js',
+      strategies: 'injectManifest',
+      
       workbox: {
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
         cleanupOutdatedCaches: true,

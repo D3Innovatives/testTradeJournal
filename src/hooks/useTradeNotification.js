@@ -52,9 +52,7 @@ export function useTradeNotification() {
 
   const showNotification = useCallback(async () => {
     if (isIOSPWA) {
-      // Use alternative notification method for iOS PWA
-      // This could be a custom in-app notification UI
-      return
+      return // Handle iOS separately
     }
 
     if (!isNotificationSupported()) {
@@ -68,23 +66,21 @@ export function useTradeNotification() {
         return
       }
 
-      const timeSinceStart = activeTrade.startTime 
-        ? Math.floor((Date.now() - new Date(activeTrade.startTime).getTime()) / 60000)
-        : 0
-
-      new Notification('Active Trade Reminder', {
-        body: `Trade running for ${timeSinceStart} minutes. Check your position!`,
+      // Use service worker to show notification
+      const registration = await navigator.serviceWorker.ready
+      await registration.showNotification('Active Trade Reminder', {
+        body: `Trade running for ${tradeDuration} minutes. Check your position!`,
         icon: '/icons/icon-192x192.png',
         tag: 'trade-notification',
-        renotify: true
+        renotify: true,
+        data: { timestamp: Date.now() }
       })
       
       dispatch(updateLastNotification())
-      console.log('Notification shown at:', new Date().toLocaleTimeString())
     } catch (error) {
       console.error('Error showing notification:', error)
     }
-  }, [activeTrade.startTime, dispatch, isIOSPWA])
+  }, [activeTrade.startTime, dispatch, isIOSPWA, tradeDuration])
 
   useEffect(() => {
     let notificationInterval
