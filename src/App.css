@@ -14,4 +14,8 @@
     /* Account for the status bar */
     padding-top: max(env(safe-area-inset-top), 20px);
   }
+
+  .ios-notification {
+    padding-top: env(safe-area-inset-top);
+  }
 }

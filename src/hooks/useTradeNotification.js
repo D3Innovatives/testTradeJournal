@@ -1,4 +1,4 @@
-import { useEffect, useCallback } from 'react'
+import { useEffect, useCallback, useState } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import { updateLastNotification } from '../store/slices/activeTradeSlice'
 
@@ -13,16 +13,18 @@ const isNotificationSupported = () => {
   )
 }
 
-const isIOSPWA = () => {
-  return (
-    ['iPhone', 'iPad', 'iPod'].includes(navigator.platform) &&
-    window.navigator.standalone === true
-  )
-}
-
 export function useTradeNotification() {
   const activeTrade = useSelector((state) => state.activeTrade)
   const dispatch = useDispatch()
+  const [isIOSPWA, setIsIOSPWA] = useState(false)
+
+  useEffect(() => {
+    // Check if running as iOS PWA
+    setIsIOSPWA(
+      ['iPhone', 'iPad', 'iPod'].includes(navigator.platform) &&
+      window.navigator.standalone === true
+    )
+  }, [])
 
   // Update service worker with trade state
   useEffect(() => {
@@ -49,7 +51,7 @@ export function useTradeNotification() {
   }, [activeTrade])
 
   const showNotification = useCallback(async () => {
-    if (isIOSPWA()) {
+    if (isIOSPWA) {
       // Use alternative notification method for iOS PWA
       // This could be a custom in-app notification UI
       return
@@ -82,7 +84,7 @@ export function useTradeNotification() {
     } catch (error) {
       console.error('Error showing notification:', error)
     }
-  }, [activeTrade.startTime, dispatch])
+  }, [activeTrade.startTime, dispatch, isIOSPWA])
 
   useEffect(() => {
     let notificationInterval
@@ -136,4 +138,11 @@ export function useTradeNotification() {
       }
     }
   }, [activeTrade.isActive, activeTrade.startTime, showNotification])
+
+  return {
+    isIOSPWA,
+    tradeDuration: activeTrade.startTime
+      ? Math.floor((Date.now() - new Date(activeTrade.startTime).getTime()) / 60000)
+      : 0
+  }
 } 

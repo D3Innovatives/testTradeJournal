@@ -25,9 +25,10 @@ import { useTradeNotification } from '../hooks/useTradeNotification'
 import NotificationsActiveIcon from '@mui/icons-material/NotificationsActive'
 import NotificationDialog from './NotificationDialog'
 import NotificationAlertDialog from './NotificationAlertDialog'
+import IOSNotification from './IOSNotification'
 
 export default function SessionDetail() {
-  useTradeNotification()
+  const { isIOSPWA, tradeDuration } = useTradeNotification()
   const { id } = useParams()
   const dispatch = useDispatch()
   const session = useSelector((state) =>
@@ -195,6 +196,13 @@ export default function SessionDetail() {
         open={showNotificationAlert}
         onClose={() => setShowNotificationAlert(false)}
       />
+
+      {isIOSPWA && (
+        <IOSNotification 
+          isActive={activeTrade.isActive}
+          duration={tradeDuration}
+        />
+      )}
     </Box>
   )
 } 
