@@ -3,11 +3,13 @@ import { Menu as MenuIcon, Dashboard, List as ListIcon, Add } from '@mui/icons-m
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { useSelector } from 'react-redux'
+import { useTheme } from '@mui/material/styles'
 
 export default function Layout({ children }) {
   const [drawerOpen, setDrawerOpen] = useState(false)
   const navigate = useNavigate()
   const activeTrade = useSelector((state) => state.activeTrade)
+  const theme = useTheme()
 
   const menuItems = [
     { text: 'Dashboard', icon: <Dashboard />, path: '/' },
@@ -17,7 +19,13 @@ export default function Layout({ children }) {
 
   return (
     <Box sx={{ display: 'flex' }}>
-      <AppBar position="fixed">
+      <AppBar 
+        position="fixed"
+        sx={{
+          pt: 'env(safe-area-inset-top)',
+          height: theme => `calc(${theme.mixins.toolbar.minHeight}px + env(safe-area-inset-top))`,
+        }}
+      >
         <Toolbar>
           <IconButton
             color="inherit"
@@ -86,9 +94,10 @@ export default function Layout({ children }) {
         sx={{
           flexGrow: 1,
           p: 3,
-          mt: 8,
+          mt: theme => `calc(${theme.mixins.toolbar.minHeight}px + env(safe-area-inset-top))`,
           backgroundColor: 'background.default',
           minHeight: '100vh',
+          pb: 'env(safe-area-inset-bottom)',
         }}
       >
         {children}

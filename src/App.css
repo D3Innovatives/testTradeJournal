@@ -1,3 +1,17 @@
 .app-container {
   min-height: 100vh;
+  /* Add iOS safe area support */
+  padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+}
+
+/* iOS PWA specific styles */
+@supports (-webkit-touch-callout: none) {
+  .app-container {
+    /* Prevent overscroll bounce on iOS */
+    -webkit-overflow-scrolling: touch;
+    overflow-y: auto;
+    overscroll-behavior-y: none;
+    /* Account for the status bar */
+    padding-top: max(env(safe-area-inset-top), 20px);
+  }
 }

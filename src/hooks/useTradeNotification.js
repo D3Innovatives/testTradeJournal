@@ -13,11 +13,43 @@ const isNotificationSupported = () => {
   )
 }
 
+const isIOSPWA = () => {
+  return (
+    ['iPhone', 'iPad', 'iPod'].includes(navigator.platform) &&
+    window.navigator.standalone === true
+  )
+}
+
 export function useTradeNotification() {
   const activeTrade = useSelector((state) => state.activeTrade)
   const dispatch = useDispatch()
 
+  // Update service worker with trade state
+  useEffect(() => {
+    const updateServiceWorker = async () => {
+      if ('serviceWorker' in navigator && navigator.serviceWorker.controller) {
+        try {
+          await navigator.serviceWorker.ready
+          navigator.serviceWorker.controller.postMessage({
+            type: 'TRADE_STATE_UPDATE',
+            payload: activeTrade
+          })
+        } catch (error) {
+          console.error('Error updating service worker:', error)
+        }
+      }
+    }
+
+    updateServiceWorker()
+  }, [activeTrade])
+
   const showNotification = useCallback(async () => {
+    if (isIOSPWA()) {
+      // Use alternative notification method for iOS PWA
+      // This could be a custom in-app notification UI
+      return
+    }
+
     if (!isNotificationSupported()) {
       console.warn('Notifications not supported in this environment')
       return
@@ -54,6 +86,18 @@ export function useTradeNotification() {
       if (Notification.permission !== 'granted') {
         console.warn('Cannot start notifications - permission not granted')
         return
+      }
+
+      // Request background sync permission if available
+      if ('permissions' in navigator) {
+        try {
+          const status = await navigator.permissions.query({
+            name: 'periodic-background-sync',
+          })
+          console.log('Background sync permission:', status.state)
+        } catch (error) {
+          console.warn('Background sync not supported:', error)
+        }
       }
 
       await showNotification()
